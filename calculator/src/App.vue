@@ -6,14 +6,15 @@
         {{ calculatedValue }}
       </div>
       <div
-        class="h-1/3 flex items-center justify-end text-6xl text-white font-bold"
+        class="h-1/3 flex items-center justify-end text-white font-bold"
+        :class="inputSize"
       >
         {{ inputValue }}
       </div>
     </div>
     <div class="w-full h-2/3">
       <div
-        class="grid grid-cols-4 gap-2 justify-center items-center w-full h-full p-4 pb-10 text-4xl place-content-center"
+        class="grid grid-cols-4 gap-2 justify-items-center items-center w-full h-full p-4 pb-10 text-4xl place-content-center"
       >
         <button @click="clearAll" class="text-gray-50 bg-gray-500">AC</button>
         <button @click="clearLastNumber" class="text-gray-400 bg-gray-500">
@@ -57,12 +58,26 @@ export default {
   name: "App",
   data() {
     return {
+      windowWidth: 0,
       separationOn: false,
       inputValue: "0",
       calculatedValue: "",
     };
   },
+
+  mounted() {
+    window.addEventListener("resize", this.onResize);
+  },
+
+  computed: {
+    inputSize() {
+      return this.windowWidth >= 700 ? "text-6xl" : "text-4xl";
+    },
+  },
   methods: {
+    onResize() {
+      this.windowWidth = window.innerWidth;
+    },
     inputData(data) {
       switch (data) {
         case "÷":
@@ -71,10 +86,12 @@ export default {
         case "+":
           this.separationOn = true;
           this.calculatedValue = `${this.calculatedValue}${this.inputValue} ${data} `;
+          this.calculatedValue = this.calculatedValue
+            .replace("÷", "/")
+            .replace("×", "*");
           this.inputValue = eval(
             this.calculatedValue.substring(0, this.calculatedValue.length - 2)
           );
-          console.log(this.calculatedValue[this.calculatedValue.length - 2]);
           break;
         case "=":
           this.separationOn = true;
@@ -110,6 +127,7 @@ export default {
       this.inputValue = String(-this.inputValue);
     },
     separation() {
+      if (this.calculatedValue <= "0" || this.inputValue <= "0") return;
       this.separationOn = true;
       this.inputValue =
         eval(
@@ -131,5 +149,10 @@ button {
 
 button:hover {
   background-color: silver;
+}
+
+.button-container {
+  align-items: center;
+  justify-content: center;
 }
 </style>

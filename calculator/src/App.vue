@@ -19,7 +19,7 @@
         <button @click="clearLastNumber" class="text-gray-400 bg-gray-500">
           C
         </button>
-        <button class="text-green-600 bg-gray-50">%</button>
+        <button @click="separation" class="text-green-600 bg-gray-50">%</button>
         <button @click="inputData('÷')" class="text-green-600 bg-gray-50">
           &#247;
         </button>
@@ -57,6 +57,7 @@ export default {
   name: "App",
   data() {
     return {
+      separationOn: false,
       inputValue: "0",
       calculatedValue: "",
     };
@@ -68,10 +69,15 @@ export default {
         case "×":
         case "-":
         case "+":
+          this.separationOn = true;
           this.calculatedValue = `${this.calculatedValue}${this.inputValue} ${data} `;
-          this.inputValue = "0";
+          this.inputValue = eval(
+            this.calculatedValue.substring(0, this.calculatedValue.length - 2)
+          );
+          console.log(this.calculatedValue[this.calculatedValue.length - 2]);
           break;
         case "=":
+          this.separationOn = true;
           this.calculatedValue = this.calculatedValue
             .replace("÷", "/")
             .replace("×", "*");
@@ -79,6 +85,10 @@ export default {
           this.calculatedValue = "";
           break;
         default:
+          if (this.separationOn) {
+            this.inputValue = "";
+            this.separationOn = false;
+          }
           this.inputValue === "0" && data !== "."
             ? (this.inputValue = data)
             : (this.inputValue += data);
@@ -97,7 +107,15 @@ export default {
         );
     },
     unaryMinus() {
-      this.inputValue = -this.inputValue;
+      this.inputValue = String(-this.inputValue);
+    },
+    separation() {
+      this.separationOn = true;
+      this.inputValue =
+        eval(
+          this.calculatedValue.substring(0, this.calculatedValue.length - 2)
+        ) *
+        (this.inputValue / 100);
     },
   },
 };
